@@ -1,5 +1,6 @@
 import os
 
+import cv2
 from PIL import Image
 
 from WhoDisPokemon.audio import create_answer_video, create_question_video
@@ -24,6 +25,7 @@ NEWCOLOUR3 = (NEWCOLOUR[2], NEWCOLOUR[1], NEWCOLOUR[0])
 TARGET_W = 300
 TARGET_H = 300
 
+
 def make_transparent_image(dex):
     image_path = os.path.join(SPRITE_FOLDER, f"{dex}.png")
     save_path = os.path.join(HERE, "wtp.png")
@@ -32,54 +34,61 @@ def make_transparent_image(dex):
         # alpha_channel = current_image_object.getchannel("A")
         print(current_image_object.has_transparency_data)
         # print(dir(current_image_object))
-        RGBA_object = current_image_object.convert("RGBA").resize((TARGET_W,TARGET_H))
-        RGBA_image = RGBA_object.load()
+        rgba_object = current_image_object.convert("RGBA").resize(
+            (TARGET_W, TARGET_H)
+            )
+        rgba_image = rgba_object.load()
         # current_image = current_image_object.load()
 
         for wpixel in range(TARGET_W):
             for hpixel in range(TARGET_H):
-                if(RGBA_image[wpixel,hpixel][3]==0):
-                    RGBA_image[wpixel,hpixel] = (0,0,0,0)
+                if (rgba_image[wpixel, hpixel][3] == 0):
+                    rgba_image[wpixel, hpixel] = (0, 0, 0, 0)
                 else:
-                    RGBA_image[wpixel,hpixel] = NEWCOLOUR
-        RGBA_object.save(save_path)
-
-import cv2
+                    rgba_image[wpixel, hpixel] = NEWCOLOUR
+        rgba_object.save(save_path)
 
 
-def generate_video_files(pokedex:int):
+def generate_video_files(pokedex: int):
     source_image_path = os.path.join(SPRITE_FOLDER, f"{pokedex}.png")
     transparent_image_path = os.path.join(HERE, "wtp.png")
     cap = cv2.VideoCapture(WTP_RAW)
-    STARTFRAME = 20
-    ENDFRAME = 255
+    start_frame = 20
+    end_frame = 255
     frame_counter = 1
     ret, frame = cap.read()
-    file_writer_start = cv2.VideoWriter(WTP_START,-1,30.0,(1280,720))
-    file_writer_question = cv2.VideoWriter(WTP_QUESTION,-1,30.0,(1280,720))
-    file_writer_answer = cv2.VideoWriter(WTP_ANSWER,-1,30.0,(1280,720))
+    file_writer_start = cv2.VideoWriter(WTP_START, -1, 30.0, (1280, 720))
+    file_writer_question = cv2.VideoWriter(WTP_QUESTION, -1, 30.0, (1280, 720))
+    file_writer_answer = cv2.VideoWriter(WTP_ANSWER, -1, 30.0, (1280, 720))
 
     with Image.open(transparent_image_path) as current_image_object:
-        RGBA_object = current_image_object.convert("RGBA").resize((TARGET_W,TARGET_H))
-        RGBA_image = RGBA_object.load()
+        rgba_object = current_image_object.convert("RGBA").resize(
+            (TARGET_W, TARGET_H)
+            )
+        rgba_image = rgba_object.load()
 
     with Image.open(source_image_path) as current_image_object:
-        ORIG_RGBA_object = current_image_object.convert("RGBA").resize((TARGET_W,TARGET_H))
-        ORIG_RGBA_image = ORIG_RGBA_object.load()
+        orig_rgba_object = current_image_object.convert("RGBA").resize(
+            (TARGET_W, TARGET_H)
+            )
+        orig_rgba_image = orig_rgba_object.load()
 
     while ret:
-        if ENDFRAME > frame_counter > STARTFRAME:
+        if end_frame > frame_counter > start_frame:
             for wpixel in range(TARGET_W):
                 for hpixel in range(TARGET_H):
-                    if(RGBA_image[hpixel, wpixel][3]!=0):
-                        frame[wpixel+180,hpixel+200] = NEWCOLOUR3
+                    if (rgba_image[hpixel, wpixel][3] != 0):
+                        frame[wpixel+180, hpixel+200] = NEWCOLOUR3
             file_writer_question.write(frame)
-        elif frame_counter >= ENDFRAME:
+        elif frame_counter >= end_frame:
             for wpixel in range(TARGET_W):
                 for hpixel in range(TARGET_H):
-                    orig_R, orig_G, orig_B, orig_A = ORIG_RGBA_image[hpixel, wpixel]
-                    if(orig_A!=0):
-                        frame[wpixel+180,hpixel+200] = orig_B, orig_G, orig_R
+                    orig_r, orig_g, orig_b, orig_a = orig_rgba_image[
+                        hpixel,
+                        wpixel
+                    ]
+                    if (orig_a != 0):
+                        frame[wpixel+180, hpixel+200] = orig_b, orig_g, orig_r
             file_writer_answer.write(frame)
         else:
             file_writer_start.write(frame)
@@ -91,13 +100,13 @@ def generate_video_files(pokedex:int):
     file_writer_question.release()
     file_writer_start.release()
 
-def get_tts_path(pokedex:int)->str:
+
+def get_tts_path(pokedex: int) -> str:
     start_string = f"{pokedex}_"
     start_string_length = len(start_string)
     for file in os.listdir(TTS_FILES_FOLDER):
         if file[:start_string_length] == start_string:
             return os.path.join(TTS_FILES_FOLDER, file)
-
 
 
 def prepare_question(dex, output_file=OUTPUT_QUESTION):
@@ -108,7 +117,13 @@ def prepare_question(dex, output_file=OUTPUT_QUESTION):
 
 def prepare_answer(dex, output_file=OUTPUT_ANSWER):
     pokename_path = get_tts_path(dex)
-    create_answer_video(bg_path = WTP_ANSWER_TEMPLATE, pokename_path = pokename_path, video_path=WTP_ANSWER, export_path=output_file)
+    create_answer_video(
+        bg_path=WTP_ANSWER_TEMPLATE,
+        pokename_path=pokename_path,
+        video_path=WTP_ANSWER,
+        export_path=output_file
+    )
+
 
 if __name__ == "__main__":
 
