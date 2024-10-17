@@ -1,5 +1,5 @@
-pre-commit
-pytest
 boto3
 botocore
+pre-commit
 pypokedex
+pytest

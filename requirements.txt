@@ -1,4 +1,4 @@
-pillow
-python-dotenv
-pydub
 moviepy
+pillow
+pydub
+python-dotenv

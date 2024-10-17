@@ -1,8 +1,10 @@
-from PIL import Image
 import os
 
-from audio import create_answer_video, create_question_video
+from PIL import Image
 
+from WhoDisPokemon.audio import create_answer_video, create_question_video
+
+POKE_LOG = r"C:\Code\GithubRepos\who_dis_pokemon\WhoDisPokemon\pokelog.txt"
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 WTP_ANSWER_TEMPLATE = os.path.join(HERE, "WTP_answer.wav")
@@ -43,6 +45,8 @@ def make_transparent_image(dex):
         RGBA_object.save(save_path)
 
 import cv2
+
+
 def generate_video_files(pokedex:int):
     source_image_path = os.path.join(SPRITE_FOLDER, f"{pokedex}.png")
     transparent_image_path = os.path.join(HERE, "wtp.png")
@@ -96,17 +100,26 @@ def get_tts_path(pokedex:int)->str:
 
 
 
-def prepare_question(dex):
+def prepare_question(dex, output_file=OUTPUT_QUESTION):
     make_transparent_image(dex)
     generate_video_files(dex)
-    create_question_video(OUTPUT_QUESTION)
+    create_question_video(output_file)
 
 
-def prepare_answer(dex):
+def prepare_answer(dex, output_file=OUTPUT_ANSWER):
     pokename_path = get_tts_path(dex)
-    create_answer_video(bg_path = WTP_ANSWER_TEMPLATE, pokename_path = pokename_path, video_path=WTP_ANSWER, export_path=OUTPUT_ANSWER)
+    create_answer_video(bg_path = WTP_ANSWER_TEMPLATE, pokename_path = pokename_path, video_path=WTP_ANSWER, export_path=output_file)
 
 if __name__ == "__main__":
-    dex = 37
+
+    dex = 120
     prepare_question(dex)
     prepare_answer(dex)
+
+    # with open(POKE_LOG, "r") as log_file:
+    #     lines = log_file.readlines()
+    # for line in lines:
+    #     if line != "":
+    #         num, sig = line.split(" ")
+    #         if sig == "-\n":
+    #             print(num)

@@ -1,7 +1,9 @@
-import boto3
 import os
+
+import boto3
 import botocore
 from dotenv import load_dotenv
+
 region_name = "us-east-1"
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
@@ -28,6 +30,7 @@ except botocore.exceptions.ClientError as error:
 
 # This was used to generate the TTS Soundfiles for the pokemon.
 import pypokedex
+
 start = 1
 end = 1025
 for dex in []: #range(1, 1026):
