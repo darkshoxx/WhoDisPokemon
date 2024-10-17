@@ -3,7 +3,9 @@ import os
 import moviepy.editor as mpe
 from pydub import AudioSegment
 
+# Folder Name
 HERE = os.path.abspath(os.path.dirname(__file__))
+# File Names
 WTP_ANSWER = os.path.join(HERE, "WTP_answer.wav")
 TEMP_PATH = os.path.join(HERE, "WTP_TEMP.wav")
 WTP_ANSWER_VID = os.path.join(HERE, "WTP_answer.mp4")
